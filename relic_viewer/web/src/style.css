@@ -1,0 +1,127 @@
+/* 全局基础样式：暗黑风格，贴近游戏内 UI */
+:root {
+  --page-bg-start: #0a0d14;
+  --page-bg-end: #121826;
+  --text: #e2e8f0;
+  --muted: #8ba0b5;
+  --border: rgba(100, 130, 180, 0.3);
+  --border-highlight: rgba(130, 170, 220, 0.6);
+  --primary: #72a1e5;
+  --panel-bg: rgba(16, 22, 35, 0.85);
+  --panel-bg-hover: rgba(25, 35, 55, 0.9);
+  --title-font: "STZhongsong", "SimSun", "Times New Roman", serif;
+  /* 正文（衬线，跟标题同一套，整个界面字体才统一） / 控件（无衬线，输入框按钮用它） */
+  --body-font: "STZhongsong", "SimSun", "Times New Roman", serif;
+  --ui-font: "Microsoft YaHei", -apple-system, sans-serif;
+  --special-box: rgb(23 40 78 / 65%);
+  /* 整体界面缩放（字号挡位）：由界面上那个「字号」下拉改，见 stores/build.ts */
+  --ui-scale: 1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+/* 整体缩放：字号、间距、边框一起等比放大，等于浏览器的页面缩放。
+   好处是不用逐个改 font-size，也不会出现「字变大了、容纳它的框没变大」被截断。
+   注意：不要再去写 width/height: calc(100% / var(--ui-scale)) —— 实测浏览器在解
+   百分比时已经按 zoom 折算过一次，再除一次会让容器变成「窗口 ÷ zoom」，右边留白。 */
+#app {
+  zoom: var(--ui-scale, 1);
+  /* 让 #app 自己当滚动容器（而不是整页滚动），顶栏那个 position: sticky 才吸得住 ——
+     整页滚动时 sticky 会被限制在父盒子里，滚过一屏就跟着跑了。 */
+  overflow-y: auto;
+}
+
+body {
+  /* 全文统一用衬线体（跟标题一套），控件另走 --ui-font，见下面 button/input 那条 */
+  font-family: var(--body-font);
+  font-size: 13px;
+  color: var(--text);
+  background: radial-gradient(circle at top left, var(--page-bg-start), var(--page-bg-end)) fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+button, input, select, textarea {
+  /* 字号/字重/行高照旧继承；只把字体族换成无衬线（衬线体在小字号下不好认）。
+     注意：这里必须先 font: inherit 再只覆盖 font-family —— 只写 font-family 的话，
+     控件会掉回浏览器默认字号（13.3px），比周围文字还大，按钮看着就挤。
+     颜色也保持原来的素色，不给输入框染主题色。 */
+  font: inherit;
+  font-family: var(--ui-font);
+  color: var(--text);
+  background: rgba(20, 28, 45, 0.5);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--panel-bg-hover);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--border-highlight);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--title-font);
+  font-weight: normal;
+  letter-spacing: 1px;
+  /* 标题统一走主题蓝，跟边框/高亮一个色系 */
+  color: var(--primary);
+}
+
+/* v-tip 的悬浮气泡（见 utils/tip.ts）：挂在 body 上、固定定位，不会被列表的 overflow 裁掉。
+   它在 #app 外面，不受整体 zoom 影响，所以字号/内边距要自己乘 --ui-scale 才能跟界面字号挡位对上。 */
+.hover-tip {
+  position: fixed;
+  z-index: 100;
+  display: none;
+  max-width: calc(340px * var(--ui-scale, 1));
+  padding: calc(4px * var(--ui-scale, 1)) calc(8px * var(--ui-scale, 1));
+  border: 1px solid var(--border-highlight);
+  border-radius: calc(4px * var(--ui-scale, 1));
+  background: rgba(12, 18, 30, 0.95);
+  box-shadow: 0 0 calc(10px * var(--ui-scale, 1)) rgba(114, 161, 229, 0.45);
+  color: var(--text);
+  font-size: calc(12px * var(--ui-scale, 1));
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: break-word;
+  /* 气泡要能让鼠标「穿过去」，否则鼠标一碰上它就触发 mouseleave，来回闪 */
+  pointer-events: none;
+  user-select: none;
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 130, 180, 0.4);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 130, 180, 0.7);
+}

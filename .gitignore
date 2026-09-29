@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# 前端
+node_modules/
+relic_viewer/web/dist/
+
+# 打包产物
+relic_viewer/dist/
+relic_viewer/build/
+
+# 存档 / 本地数据
+*.sl2
+*.xlsx
+
+# 编辑器 / 工具
+.vscode/
+.aoci/

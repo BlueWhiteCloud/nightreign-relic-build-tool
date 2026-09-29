@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- 标签页 / 窗口图标：ico 给老浏览器兜底，png 给现代浏览器（都由 tools/build_icons.py 生成）
+         别给 ico 写 sizes="any" —— 那等于告诉浏览器「这张图任意尺寸都高清」，
+         浏览器就可能放着 256 的 png 不用，去拿 ico 里的小尺寸硬撑大，图标就糊了 -->
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- 标题取 .env 里的 VITE_APP_TITLE（vite 会在构建时替换掉） -->
+    <title>%VITE_APP_TITLE%</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
