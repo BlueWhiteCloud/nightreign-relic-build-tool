@@ -15,6 +15,7 @@ from tkinter import filedialog
 # Add parent directory to sys.path to import local modules
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+import applog
 from sl2_reader import read_save, SaveFormatError
 from relic_parser import parse_save_slot, entry_area_offset
 from vessel_parser import parse_hero_vessels, parse_vessel_goods, build_character_vessels
@@ -201,6 +202,8 @@ async def open_save(payload: dict = Body(...)):
     except SaveFormatError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        # 用户报「这个存档打不开」时，日志里得有堆栈 —— 否则只能靠猜。
+        applog.log_exception("打开存档失败：%s" % file_path)
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
 
 @app.get("/api/save/slots/{index}/details")
@@ -620,7 +623,15 @@ def _web_dist_dir() -> Path | None:
 _WEB_DIST = _web_dist_dir()
 
 if _WEB_DIST is not None:
-    app.mount("/assets", StaticFiles(directory=_WEB_DIST / "assets"), name="assets")
+    _assets_dir = _WEB_DIST / "assets"
+    if _assets_dir.is_dir():
+        app.mount("/assets", StaticFiles(directory=_assets_dir), name="assets")
+    else:
+        # 正常构建产物里一定有 assets；缺了说明文件不完整（解压失败、被杀软清理……）。
+        # 这里**故意不抛异常**：抛出去会让整个后端 import 失败，程序连启动都起不来 ——
+        # 用户看到的就是「双击没反应」。记一条日志，让程序先活着，页面那边会有提示。
+        applog.log("静态资源目录缺失，跳过挂载：%s（界面会加载不出来，多半是程序文件不完整）"
+                   % _assets_dir)
     _WEB_DIST_RESOLVED = _WEB_DIST.resolve()
 
     @app.get("/{full_path:path}", include_in_schema=False)
