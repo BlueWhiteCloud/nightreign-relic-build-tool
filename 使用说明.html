@@ -1,5 +1,5 @@
 <!DOCTYPE html><html><head>
-      <title>使用说明</title>
+      <title>README</title>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       
@@ -27,17 +27,24 @@
       <div class="crossnote markdown-preview  ">
       
 <h1 id="遗物快速配置工具--使用说明">遗物快速配置工具 · 使用说明 </h1>
-<p>一个《艾尔登法环：黑夜君临》的<strong>遗物 / 圣杯查看器</strong> + <strong>配装推荐</strong>小工具。</p>
+<p>一个《艾尔登法环：黑夜君临》的<strong>配装推荐</strong>工具。</p>
 <ul>
 <li>只<strong>读取</strong>你的存档，<strong>不会修改</strong>存档，放心用。</li>
-<li>打包成了单个 exe，<strong>不用装 Python</strong>，双击就能跑。</li>
+<li>打包成了单个 exe，<strong>无需装 Python</strong>。</li>
 <li>当前版本 <strong>v1.0.0</strong>；源码 / 更新日志：<a href="https://github.com/BlueWhiteCloud/nightreign-relic-build-tool">https://github.com/BlueWhiteCloud/nightreign-relic-build-tool</a></li>
-<li>觉得好用的话，可以帮忙点个免费的star支持一下吗(●'◡'●)</li>
+<li>下载地址：<a href="https://github.com/BlueWhiteCloud/nightreign-relic-build-tool/releases/latest">https://github.com/BlueWhiteCloud/nightreign-relic-build-tool/releases/latest</a>，点击“nightreign-relic-build-tool_v1.0.0.zip”下载解压即可。</li>
+<li>觉得好用的话，可以帮忙点个免费的 ⭐ 支持一下吗(●'◡'●)</li>
 </ul>
 <hr>
+<h2 id="预览">预览 </h2>
+<p><strong>配置页</strong>（在这一页设条件）</p>
+<p><img src="docs/preview-config.png" alt="配置页"></p>
+<p><strong>结果页</strong>（在这一页看推荐结果）</p>
+<p><img src="docs/preview-result.png" alt="结果页"></p>
+<hr>
 <h2 id="一-简要功能">一、简要功能 </h2>
-<p>输入：一个<code>.sl2</code>存档文件（当前在用/备份的游戏存档均可，只读）+ 规则条件（可导入）<br>
-输出：展示当前.sl2在设定条件下得分最高的前n套遗物</p>
+<p>输入：一个<code>.sl2</code>存档文件（当前在用/备份的游戏存档均可，只读）+ 规则条件（可导入）</p>
+<p>输出：展示当前.sl2在设定条件下得分最高的前n套遗物</p>
 <hr>
 <h2 id="二-快速上手">二、快速上手 </h2>
 <ol>
@@ -45,8 +52,10 @@
 <li><strong>子存档</strong> → 选 BlueCloud_。</li>
 <li>切到 <strong>配装推荐</strong>页。</li>
 <li><strong>导入配置</strong> → 选 <code>预设配置\复仇者\兽爪蜗配装配置.json</code>。</li>
-<li>点 <strong>开始推荐</strong>。</li>
+<li>点 <strong>开始推荐</strong>，耐心等待2分钟。</li>
 </ol>
+<p>以上就是一个完整的使用过程。</p>
+<p>在实际的使用中，你应该使用自己的.sl2存档，可以通过<code>win+R</code>快捷键打开“运行”窗口，输入<code>%appdata%</code>后确定，找到里面的<code>Nightreign</code>文件夹，里面一串数字的文件夹里就有自己的存档<code>NR0000.sl2</code>，你可以直接用工具读取该存档文件，也可以备份该文件到别处再进行读取，但备份的存档文件不会随着游戏进程同步。</p>
 <hr>
 <h2 id="三-界面介绍">三、界面介绍 </h2>
 <p>下面有 3 个页签：</p>
@@ -161,8 +170,8 @@
 <h2 id="六-常见问题">六、常见问题 </h2>
 <ul>
 <li><strong>双击没反应 / 报错</strong>：确认是 64 位 Windows；首次启动会慢几秒。</li>
-<li><strong>配出的方案感觉不对</strong>：检查条件是否有遗漏、单选多选是否涉及同词条、通用遗物规则是否与前两部分重合或矛盾、权重设置是否过小或过大，也可以把「每侧候选数」调大试试。</li>
-<li><strong>一套都配不出来</strong>：条件太苛刻（份数要太多、多选组互相抢词条）。删几条必选，或调大「每侧候选数」。</li>
+<li><strong>配出的方案感觉不对</strong>：检查所选角色是否正确、条件是否有错漏、单选多选是否同词条计数错误、通用遗物规则是否与前两部分重合或矛盾、权重设置是否过小或过大，也可以把「每侧候选数」调大试试。</li>
+<li><strong>一套都配不出来</strong>：条件太苛刻（份数要太多、多选组互相抢词条）或当前存档确实没有足够的遗物满足条件。删几条必选，或调大「每侧候选数」。</li>
 <li><strong>等待时间过久</strong>：游戏内遗物上限为2000，目前作者存档1926件遗物，计算一次时长大约为1到4min，为追求规则内最优配置使用的是剪枝+穷举算法，规则越复杂越慢，还请耐心等待。</li>
 </ul>
 <h3 id="反馈-bug-请带上这三样">反馈 bug 请带上这三样 </h3>
@@ -177,6 +186,89 @@
 <li>B 站：<a href="https://space.bilibili.com/7658355">@山而shaner_</a></li>
 <li>小黑盒：<a href="https://xiaoheihe.cn/app/user/profile/63676601">@蓝云_</a></li>
 <li>GitHub（源码 / issues / 求 star）：<a href="https://github.com/BlueWhiteCloud/nightreign-relic-build-tool">nightreign-relic-build-tool</a></li>
+</ul>
+<hr>
+<h2 id="技术栈">技术栈 </h2>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>用的东西</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>后端</td>
+<td>Python 3.11 · FastAPI · uvicorn</td>
+</tr>
+<tr>
+<td>存档解析</td>
+<td><code>.sl2</code> 读取 + AES-CBC 解密（<code>cryptography</code>）</td>
+</tr>
+<tr>
+<td>前端</td>
+<td>Vue 3 · Pinia · Vite（打包进 exe，由本地 FastAPI 提供服务）</td>
+</tr>
+<tr>
+<td>界面窗口</td>
+<td>Windows 上以 Edge「应用模式」打开，做成独立窗口的样子</td>
+</tr>
+<tr>
+<td>打包</td>
+<td>PyInstaller 单文件</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="从源码构建--启动">从源码构建 / 启动 </h2>
+<h3 id="启动源码开发模式">启动源码（开发模式） </h3>
+<p><strong>后端</strong>（终端 1）：装依赖后在 <code>relic_viewer</code> 目录起服务，监听 8000：</p>
+<pre data-role="codeBlock" data-info="bash" class="language-bash bash"><code>pip <span class="token function">install</span> fastapi uvicorn cryptography
+
+<span class="token builtin class-name">cd</span> relic_viewer
+python <span class="token parameter variable">-m</span> uvicorn server:app <span class="token parameter variable">--port</span> <span class="token number">8000</span>
+</code></pre><p><strong>前端</strong>（终端 2）：dev server 会把 <code>/api</code> 转发到 8000：</p>
+<pre data-role="codeBlock" data-info="bash" class="language-bash bash"><code><span class="token builtin class-name">cd</span> relic_viewer/web
+<span class="token function">npm</span> <span class="token function">install</span>
+<span class="token function">npm</span> run dev          <span class="token comment"># 打开 http://localhost:5173</span>
+</code></pre><h3 id="打包成单文件-exe">打包成单文件 exe </h3>
+<pre data-role="codeBlock" data-info="bash" class="language-bash bash"><code><span class="token comment"># 1. 构建前端</span>
+<span class="token builtin class-name">cd</span> relic_viewer/web
+<span class="token function">npm</span> <span class="token function">install</span>
+<span class="token function">npm</span> run build
+
+<span class="token comment"># 2. 回根目录，进 relic_viewer 打包（产物在 relic_viewer/dist/）</span>
+<span class="token builtin class-name">cd</span> <span class="token punctuation">..</span>/<span class="token punctuation">..</span>
+<span class="token builtin class-name">cd</span> relic_viewer
+pyinstaller 黑夜君临遗物配装工具.spec
+</code></pre><h3 id="像用户那样启动解压--独立窗口">像用户那样启动（解压 + 独立窗口） </h3>
+<pre data-role="codeBlock" data-info="bash" class="language-bash bash"><code>python relic_viewer/app.py
+</code></pre><h3 id="主要第三方依赖">主要第三方依赖 </h3>
+<ul>
+<li>运行：<code>fastapi</code>、<code>uvicorn</code>、<code>cryptography</code></li>
+<li>数据工具 / 打包：<code>pyinstaller</code>、<code>Pillow</code>、<code>openpyxl</code></li>
+</ul>
+<hr>
+<h2 id="目录结构简">目录结构（简） </h2>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>图标/                  应用图标（icon.ico 打包要用；logo图标.png 是源图）
+
+relic_viewer/
+  app.py                打包版入口（起服务 + 开窗口）
+  server.py             FastAPI 路由 + 打包版静态资源
+  sl2_reader.py         .sl2 解密 / 读取
+  relic_parser.py       遗物解析
+  vessel_parser.py      圣杯解析
+  game_data.py          名称 / 颜色等静态表
+  recommender/          推荐算法（评分、搜索、伤害、生存）
+  Resources/            从游戏导出的词条 / 数值表（CSV）
+  web/                  Vue 3 前端源码
+  tools/                数据维护脚本（Excel → CSV，需自备源表）
+</code></pre><hr>
+<h2 id="免责声明">免责声明 </h2>
+<ul>
+<li>本工具是<strong>非官方</strong>的玩家工具，与 FromSoftware、万代南梦宫没有任何关系。</li>
+<li>工具只读取本地存档文件，不上传、修改存档的任何东西。请自行备份存档。</li>
+<li>请支持正版游戏。</li>
 </ul>
 
       </div>

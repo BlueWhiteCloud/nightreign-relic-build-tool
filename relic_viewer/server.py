@@ -18,7 +18,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from sl2_reader import read_save, SaveFormatError
 from relic_parser import parse_save_slot, entry_area_offset
 from vessel_parser import parse_hero_vessels, parse_vessel_goods, build_character_vessels
-from hero_unlock import parse_hero_unlocks
 from game_data import GameData
 from config_code import encode_config_code, decode_config_code, ConfigCodeError
 from recommender.effect_table import EffectTable
@@ -49,11 +48,10 @@ current_save = None
 save_content = None
 
 class SaveState:
-    def __init__(self, save, save_slots, vessel_data, hero_unlocks):
+    def __init__(self, save, save_slots, vessel_data):
         self.save = save
         self.save_slots = save_slots
         self.vessel_data = vessel_data
-        self.hero_unlocks = hero_unlocks
 
 def select_file_native():
     """在后端启动一个隐藏的 Tkinter 窗口并弹出文件对话框"""
@@ -129,6 +127,15 @@ async def decode_code(payload: dict = Body(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+def _has_real_name(name: str) -> bool:
+    """槽位名里是不是真有人写的字。
+
+    「新建了但从没登录进去过」的角色槽，游戏只留了一片未初始化的填充，
+    名字读出来是 \\uffff 这类不可打印字符 —— 这种槽没有任何可用数据，不算角色。
+    """
+    return any(ch.isprintable() for ch in (name or ""))
+
+
 @app.post("/api/save/open")
 async def open_save(payload: dict = Body(...)):
     global current_save, save_content
@@ -143,27 +150,39 @@ async def open_save(payload: dict = Body(...)):
         for slot_index, data in save.slots.items():
             try:
                 save_slot = parse_save_slot(data, slot_index)
-                if save_slot.name or save_slot.relics:
+                if _has_real_name(save_slot.name) or save_slot.relics:
                     save_slots.append(save_slot)
             except:
                 continue
         
         vessel_data = {}
-        for s in save_slots:
-            data = save.slots.get(s.slot_index)
-            hero_vessels = parse_hero_vessels(data, game_data.vessel_hero_type)
-            unlocked_goods, _ = parse_vessel_goods(data, entry_area_offset(data))
-            vessel_data[s.slot_index] = (hero_vessels, unlocked_goods)
-            
-        hero_unlocks = {}
+        healthy = []
         for s in save_slots:
             data = save.slots.get(s.slot_index)
             try:
-                hero_unlocks[s.slot_index] = parse_hero_unlocks(data)
-            except:
-                hero_unlocks[s.slot_index] = None
+                hero_vessels = parse_hero_vessels(data, game_data.vessel_hero_type)
+                unlocked_goods, _ = parse_vessel_goods(data, entry_area_offset(data))
+            except Exception:
+                # 这一段读不出来的槽（幽灵槽等）单独跳过 —— 不能让一个坏槽
+                # 把整份存档连带那些正常角色一起判死。
+                continue
+            healthy.append(s)
+            vessel_data[s.slot_index] = (hero_vessels, unlocked_goods)
+
+        # 游戏里「已经删掉」的角色：槽位数据还留着，但启用标记是 False，默认不列出来。
+        # 全都不剩就退回「能解析出来的那批」，免得极端存档一个槽都不显示。
+        enabled = getattr(save, "slots_enabled", None)
+        if enabled and healthy:
+            kept = [s for s in healthy
+                    if s.slot_index < len(enabled) and enabled[s.slot_index]]
+            if kept:
+                healthy = kept
+        save_slots = healthy
+            
+        # 这里以前会读「角色解锁标记」存进 hero_unlocks，现在不读了 ——
+        # 那个标记不可靠，具体原因写在 get_slot_details 里。
                 
-        save_content = SaveState(save, save_slots, vessel_data, hero_unlocks)
+        save_content = SaveState(save, save_slots, vessel_data)
         
         return {
             "path": str(save.path),
@@ -191,19 +210,21 @@ async def get_slot_details(index: int):
     
     save_slot = save_content.save_slots[index]
     
-    # Hero unlocks
+    # 角色列表：直接列「这份存档里有圣杯数据的角色」。
+    #
+    # 以前会拿存档里的「角色解锁标记」把没解锁的角色过滤掉，但那个标记靠不住：
+    #   1) 玩家从零开档的 9 份存档里，它一份都读不到（于是每次都退回"列全部"，蒙对）；
+    #   2) 偶尔"读到"的其实是一段模板数据（新手默认的 6 个），结果反而把角色列少了 ——
+    #      有玩家 10 个角色解锁却只显示 6 个，就是这么来的。
+    # 拿那 9 份有确定进度的存档全盘验证过（按几种对齐方式搜"6→8→9→10 且层层包含"的
+    # 10 字节表），都找不到可靠判据，所以不猜了。
+    # 宁可多列几个：选到没解锁的角色只是圣杯显示默认值，不影响别的；少列才是真麻烦。
     hero_types = sorted(save_content.vessel_data[save_slot.slot_index][0].keys())
-    unlocks = save_content.hero_unlocks.get(save_slot.slot_index)
-    if unlocks:
-        unlocked_heroes = [h for h in hero_types if unlocks.get(h)]
-        if not unlocked_heroes: unlocked_heroes = hero_types
-    else:
-        unlocked_heroes = hero_types
-        
+
     return {
         "heroes": [
             {"type": h, "name": game_data.hero_name(h)}
-            for h in unlocked_heroes
+            for h in hero_types
         ],
         "relics": [
             {

@@ -14,8 +14,16 @@ instance.interceptors.response.use(
   // 直接把 data 抛出去，业务里 await http.get<T>() 拿到的就是 T
   (response) => response.data,
   (error) => {
-    const data = error.response?.data as { message?: string } | undefined
-    return Promise.reject(new Error(data?.message || error.message || '请求失败'))
+    // FastAPI 的报错放在 detail 里，不读它的话界面只剩一句
+    // 「Request failed with status code 500」，用户根本不知道发生了什么。
+    const data = error.response?.data as { detail?: unknown; message?: unknown } | undefined
+    const detail =
+      typeof data?.detail === 'string'
+        ? data.detail
+        : typeof data?.message === 'string'
+          ? data.message
+          : ''
+    return Promise.reject(new Error(detail || error.message || '请求失败'))
   },
 )
 
