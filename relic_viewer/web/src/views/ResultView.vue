@@ -16,8 +16,8 @@ const store = useBuildStore()
 const router = useRouter()
 
 const {
-  savePath, slots, slotIndex, childSaveName, relicCount, roleCount,
-  heroes, selectedHeroType, vesselIndex, vessels, grailCount, heroName,
+  savePath, slots, slotIndex, childSaveName, relicCount,
+  heroes, selectedHeroType, vesselIndex, vessels, heroName,
   sortMode, sortedPlans, status, metCount, unmetNotice, computing,
 } = storeToRefs(store)
 
@@ -58,7 +58,7 @@ watch(sortMode, () => {
             </select>
           </div>
           <div class="child-save-count">
-            子存档名： {{ childSaveName }} | 遗物 {{ relicCount }} 件 | 操作角色 {{ roleCount }} 个
+            子存档名： {{ childSaveName }} | 遗物 {{ relicCount }} 件
           </div>
         </div>
         <div class="role-grail-configuration">
@@ -73,14 +73,14 @@ watch(sortMode, () => {
           <div class="grail-choose">
             <p>圣杯：</p>
             <select v-model="vesselIndex" class="select grail-select">
-              <option :value="0">自动（所有已解锁圣杯，共 {{ grailCount }} 个）</option>
+              <option :value="0">自动（该角色的全部圣杯）</option>
               <option v-for="(vessel, index) in vessels" :key="vessel.id" :value="index + 1">
                 {{ vessel.name }}（{{ vessel.id }}）{{ vessel.is_current ? '　★当前装备' : '' }}
               </option>
             </select>
           </div>
           <div class="role-grail-info">
-            {{ heroName }} 已解锁 {{ grailCount }} 个圣杯
+            {{ heroName }} 的圣杯
           </div>
         </div>
       </div>

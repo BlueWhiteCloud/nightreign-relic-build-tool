@@ -96,7 +96,6 @@ export const useBuildStore = defineStore('build', () => {
   const currentSlot = computed(() => slots.value[slotIndex.value] ?? null)
   const childSaveName = computed(() => currentSlot.value?.name ?? '未选择')
   const relicCount = computed(() => currentSlot.value?.relic_count ?? 0)
-  const roleCount = computed(() => heroes.value.length)
   const heroName = computed(
     () => heroes.value.find(hero => hero.type === selectedHeroType.value)?.name ?? '未选择角色',
   )
@@ -108,7 +107,6 @@ export const useBuildStore = defineStore('build', () => {
   const banned = ref<PickerItem[]>([])       // 黑名单候选（含不可 roll 的）
   const damageList = ref<PickerItem[]>([])   // 伤害栏候选（按家族合并）
   const survivalList = ref<PickerItem[]>([]) // 生存栏候选（按分组合并）
-  const grailCount = computed(() => vessels.value.length)
 
   // ---------- 配装条件 ----------
   function makeSide(): SideConfig {
@@ -264,24 +262,43 @@ export const useBuildStore = defineStore('build', () => {
       const res = await http.post<any>('/save/open', { path: chosen.path })
       savePath.value = res.path
       slots.value = res.slots
-      slotIndex.value = res.slots.length ? 0 : -1
+      const next = res.slots.length ? 0 : -1
+      const changed = next !== slotIndex.value
+      slotIndex.value = next
+      // 打开另一份存档时，slotIndex 基本还是 0（跟上一份一样）→ 下面那个 watch 不触发。
+      // 不补这一下，界面就会停在上一份存档的遗物/角色上（顶部那个数字却已经是新的了）。
+      if (next >= 0 && !changed) await loadSlotDetails(next)
       status.value = `已打开存档：${res.path}`
     } catch (err) {
       alert(`打开存档失败：${(err as Error).message}`)
     }
   }
 
-  watch(slotIndex, async (index) => {
-    if (index < 0) return
+  /**
+   * 拉一个子存档的详情（操作角色 + 遗物），填进界面。
+   *
+   * 抽成函数是因为它有**两个**调用时机：用户手动换子存档（走下面的 watch），
+   * 以及重新打开一份存档（见上面 selectSaveFile —— 那种情况下 slotIndex 没变，watch 不会触发）。
+   */
+  async function loadSlotDetails(index: number) {
     try {
       const res = await http.get<any>(`/save/slots/${index}/details`)
       heroes.value = res.heroes
       relics.value = res.relics
-      selectedHeroType.value = res.heroes.length ? res.heroes[0].type : -1
+      const nextHero = res.heroes.length ? res.heroes[0].type : -1
+      const heroChanged = nextHero !== selectedHeroType.value
+      selectedHeroType.value = nextHero
+      // 同理：新存档的第一个角色碰巧跟上一份相同的话，watch(selectedHeroType) 也不触发，
+      // 圣杯和词条候选池就会停在上一个角色上 —— 这里补一次。
+      if (!heroChanged) await loadHeroData(nextHero)
       status.value = `子存档「${childSaveName.value}」已载入：遗物 ${res.relics.length} 件`
     } catch (err) {
       alert(`读取子存档失败：${(err as Error).message}`)
     }
+  }
+
+  watch(slotIndex, (index) => {
+    if (index >= 0) loadSlotDetails(index)
   })
 
   /**
@@ -348,7 +365,14 @@ export const useBuildStore = defineStore('build', () => {
     return removed
   }
 
-  watch(selectedHeroType, async (heroType) => {
+  /**
+   * 拉某个操作角色的圣杯列表和词条候选池。
+   *
+   * 抽成函数是因为它有**两个**调用时机：用户手动换角色（走下面的 watch），
+   * 以及「换了存档、但新存档的第一个角色碰巧跟上一份相同」—— 那种情况下
+   * watch 不会触发，圣杯和候选池就会停在上一个角色上，得显式补一次（见 loadSlotDetails）。
+   */
+  async function loadHeroData(heroType: number) {
     if (heroType < 0 || !currentSlot.value) {
       vessels.value = []
       return
@@ -373,6 +397,10 @@ export const useBuildStore = defineStore('build', () => {
     } catch (err) {
       alert(`读取角色数据失败：${(err as Error).message}`)
     }
+  }
+
+  watch(selectedHeroType, (heroType) => {
+    loadHeroData(heroType)
   })
 
   // ---------- 条件增删 ----------
@@ -711,9 +739,9 @@ export const useBuildStore = defineStore('build', () => {
   return {
     // 存档
     savePath, slots, slotIndex, relics, heroes, selectedHeroType,
-    currentSlot, childSaveName, relicCount, roleCount, heroName,
+    currentSlot, childSaveName, relicCount, heroName,
     // 圣杯 / 候选
-    vessels, vesselIndex, grailCount, standard, banned, damageList, survivalList,
+    vessels, vesselIndex, standard, banned, damageList, survivalList,
     // 条件
     config, mutex, ban, damage, survival, damageCounts, survivalCounts,
     damageValues, survivalValues,

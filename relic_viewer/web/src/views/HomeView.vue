@@ -20,7 +20,7 @@ const router = useRouter()
 
 const {
   savePath, slots, slotIndex, relics, heroes, selectedHeroType,
-  childSaveName, relicCount, roleCount, heroName, grailCount,
+  childSaveName, relicCount, heroName,
   vessels, vesselIndex, standard, banned, damageList, survivalList,
   config, mutex, ban, damage, survival, damageCounts, survivalCounts,
   damageValues, survivalValues,
@@ -117,7 +117,7 @@ function viewResult() {
             </select>
           </div>
           <div class="child-save-count">
-            子存档名： {{ childSaveName }} | 遗物 {{ relicCount }} 件 | 操作角色 {{ roleCount }} 个
+            子存档名： {{ childSaveName }} | 遗物 {{ relicCount }} 件
           </div>
         </div>
         <div class="role-grail-configuration">
@@ -132,14 +132,14 @@ function viewResult() {
           <div class="grail-choose">
             <p>圣杯：</p>
             <select v-model="vesselIndex" class="select grail-select">
-              <option :value="0">自动（所有已解锁圣杯，共 {{ grailCount }} 个）</option>
+              <option :value="0">自动（该角色的全部圣杯）</option>
               <option v-for="(vessel, index) in vessels" :key="vessel.id" :value="index + 1">
                 {{ vessel.name }}（{{ vessel.id }}）{{ vessel.is_current ? '★' : '' }}
               </option>
             </select>
           </div>
           <div class="role-grail-info">
-            {{ heroName }} 已解锁 {{ grailCount }} 个圣杯
+            {{ heroName }} 的圣杯
           </div>
         </div>
       </div>
@@ -219,7 +219,7 @@ function viewResult() {
       <!-- 圣杯 -->
       <div v-if="tab === 'vessels'" class="grail-section">
         <div class="list-summary">
-          {{ heroName }}　已解锁 {{ grailCount }} 个圣杯
+          {{ heroName }} 的圣杯
         </div>
         <div class="table-wrap">
           <table class="data-table">
