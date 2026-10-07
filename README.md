@@ -4,8 +4,8 @@
 
 - 只**读取**你的存档，**不会修改**存档，放心用。
 - 打包成了单个 exe，**无需装 Python**。
-- 当前版本 **v1.0.0**；源码 / 更新日志：<https://github.com/BlueWhiteCloud/nightreign-relic-build-tool>
-- 下载地址：<https://github.com/BlueWhiteCloud/nightreign-relic-build-tool/releases/latest>，点击“nightreign-relic-build-tool_v1.0.0.zip”下载解压即可。
+- 源码 / 更新日志：<https://github.com/BlueWhiteCloud/nightreign-relic-build-tool>
+- 下载地址：<https://github.com/BlueWhiteCloud/nightreign-relic-build-tool/releases/latest>，点击 zip 压缩包下载解压即可。
 - 觉得好用的话，可以帮忙点个免费的 ⭐ 支持一下吗(●'◡'●)
 
 ---
